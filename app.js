@@ -1,24 +1,25 @@
 const canvas = document.getElementById('tetris');
 const context = canvas.getContext('2d');
 
-context.scale(20, 20);
+context.scale(20, 20); //defining the dimensions of the canvas
 
+//js object to store the current player's information
 const player = {
  matrix : null,
  pos: {x: 0, y: 0},
  score: 0,
 };
 
+//the HTML color codes for the tetris blocks
 const colors = [null, '#FF0D72', '#0DC2FF', '#0DFF72', '#F538FF', '#FF8E0D', '#FFE138', '#3877FF'];
 
-const arena = create_matrix(12, 20);
-// console.log(arena);
-// console.table(arena);
+const arena = create_matrix(12, 20); //this is the region in which the blocks will be stacked
 
-let last_time = 0;
-let drop_counter = 0;
-let drop_interval = 1000;
+let last_time = 0; //the last time a block was dropped
+let drop_counter = 0; //number of blocks dropped
+let drop_interval = 1000; //interval between the time 2 blocks are dropped
 
+//registering key strokes to define the corresponding actions
 document.addEventListener('keydown', event => {
  if(event.keyCode === 37) {
   //left key
@@ -38,6 +39,7 @@ document.addEventListener('keydown', event => {
  }
 });
 
+//clears the bottom row and adds a new one at the top
 function arena_sweep() {
  let row_count = 1;
  outer: for(let y = arena.length - 1; y >= 0; y--) {
@@ -54,6 +56,7 @@ function arena_sweep() {
  }
 }
 
+//to check if a dropping block is colliding with an existing block or the boundary
 function collide(arena, player) {
  const [m, o] = [player.matrix, player.pos];
  for (let y = 0; y < m.length; ++y) {
@@ -66,6 +69,7 @@ function collide(arena, player) {
  return false;
 }
 
+//creating the different shaped 7 tetris blocks
 function create_piece(type) {
  if (type === 'T') {
   return [
@@ -112,6 +116,7 @@ function create_piece(type) {
  }
 }
 
+//function to create an empty matrix filled with 0s
 function create_matrix(w, h) {
  const matrix = [];
  while(h--) {
@@ -120,6 +125,7 @@ function create_matrix(w, h) {
  return matrix;
 }
 
+//draws the canvas on the screen
 function draw() {
  context.fillStyle = '#000';
  context.fillRect(0, 0, canvas.width, canvas.height);
@@ -127,6 +133,7 @@ function draw() {
  draw_matrix(player.matrix, player.pos);
 }
 
+//draws the matrix and blocks
 function draw_matrix(matrix, offset) {
  matrix.forEach((row, y) => {
   row.forEach((value, x) => {
@@ -138,6 +145,7 @@ function draw_matrix(matrix, offset) {
  });
 }
 
+//to add the player's move to the arena
 function merge(arena, player) {
  player.matrix.forEach((row, y) => {
   row.forEach((value, x) => {
@@ -148,6 +156,7 @@ function merge(arena, player) {
  });
 }
 
+//when player drops the block to the bottom
 function player_drop() {
  player.pos.y++;
  if (collide(arena, player)) {
@@ -160,6 +169,7 @@ function player_drop() {
  drop_counter = 0;
 }
 
+//creates the player's move in the specified direction
 function player_move(dir) {
  player.pos.x += dir;
  if (collide(arena, player)) {
@@ -167,6 +177,7 @@ function player_move(dir) {
  }
 }
 
+//starts (or resets) the game
 function player_reset() {
  const pieces = 'ILJOTSZ';
  player.matrix = create_piece(pieces[pieces.length * Math.random() | 0]);
@@ -179,6 +190,7 @@ function player_reset() {
  }
 }
 
+//to rotate the tetris blocks in the specified (left or right) direction
 function player_rotate(dir) {
  const pos = player.pos.x;
  let offset = 1;
@@ -194,6 +206,7 @@ function player_rotate(dir) {
  }
 }
 
+//rotates the block, passed as a matrix, in the specified direction
 function rotate(matrix, dir) {
  for(let y = 0; y < matrix.length; y++) {
   for (let x = 0; x < y; x++) {
@@ -208,6 +221,7 @@ function rotate(matrix, dir) {
  }
 }
 
+//draws the updated matrix after the player has made the move
 function update(time = 0) {
  const delta_time = time - last_time;
  last_time = time;
@@ -219,6 +233,7 @@ function update(time = 0) {
  requestAnimationFrame(update);
 }
 
+//updates the scoreboard
 function update_score() {
  document.getElementById("score").innerText = player.score;
 }
